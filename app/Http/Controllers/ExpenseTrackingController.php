@@ -15,7 +15,7 @@ class ExpenseTrackingController extends Controller
     {
         $expenses = DB::table('expense')
             ->select('expense.id', 'expense.jenis_expense', 'expense.nama', 'expense.jumlah', 'jenis_expense.nama as jenis_expense_nama')
-            ->join('jenis_expense','jenis_expense.id', 'expense.jenis_expense')
+            ->join('jenis_expense', 'jenis_expense.id', 'expense.jenis_expense')
             ->get();
 
         $debit = DB::table('expense')->where('jenis_expense', 1)->sum('jumlah');
@@ -54,14 +54,13 @@ class ExpenseTrackingController extends Controller
     public function show(string $id)
     {
         $expenses1 = DB::table('expense')
-        ->select('expense.id', 'jenis_expense.nama as jenis_expense_nama')
-        ->join('jenis_expense', 'jenis_expense.id', 'expense.jenis_expense')
-        ->where('expense.id', $id)
-        ->first();
+            ->select('expense.id', 'expense.nama', 'expense.jumlah', 'expense.jenis_expense', 'jenis_expense.nama as jenis_expense_nama')
+            ->join('jenis_expense', 'jenis_expense.id', 'expense.jenis_expense')
+            ->where('expense.id', $id)
+            ->first();
 
         $jenis_expense = DB::table('jenis_expense')->get();
 
-        // dd($jenis_expense);
         return view('show', ['expense' => $expenses1, 'jenis_expense' => $jenis_expense]);
     }
 
@@ -70,8 +69,15 @@ class ExpenseTrackingController extends Controller
      */
     public function edit(string $id)
     {
-        $expenses1 = [1, "debit", "Makan Pagi", 10000];
-        return view('show', ['expense' => $expenses1]);
+        $expenses1 = DB::table('expense')
+            ->select('expense.id', 'expense.nama', 'expense.jumlah', 'expense.jenis_expense', 'jenis_expense.nama as jenis_expense_nama')
+            ->join('jenis_expense', 'jenis_expense.id', 'expense.jenis_expense')
+            ->where('expense.id', $id)
+            ->first();
+
+        $jenis_expense = DB::table('jenis_expense')->get();
+
+        return view('show', ['expense' => $expenses1, 'jenis_expense' => $jenis_expense]);
     }
 
     /**
@@ -79,6 +85,22 @@ class ExpenseTrackingController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $request->validate([
+            'jenis' => 'required',
+            'nama' => 'required|string|max:255',
+            'jumlah' => 'required|numeric|min:0',
+        ]);
+
+        // Mengupdate data expense berdasarkan ID
+        DB::table('expense')
+            ->where('id', $id)
+            ->update([
+                'jenis_expense' => $request->input('jenis'),
+                'nama' => $request->input('nama'),
+                'jumlah' => $request->input('jumlah'),
+                'updated_at' => now(), // Mengupdate timestamp
+            ]);
+
         return redirect()->route('expense.index');
     }
 

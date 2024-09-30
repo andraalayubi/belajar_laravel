@@ -22,5 +22,5 @@ Route::get('/expense', [ExpenseTrackingController::class, 'index'])->name('expen
 Route::get('/expense/create', [ExpenseTrackingController::class, 'create'])->name('expense.create');
 Route::post('/expense/store', [ExpenseTrackingController::class, 'store'])->name('expense.store');
 Route::get('/expense/show/{id}', [ExpenseTrackingController::class, 'show'])->name('expense.show');
-Route::get('/expense/{id}/edit', [ExpenseTrackingController::class, 'edit'])->name('expense.edit');
-Route::get('/expense/{id}', [ExpenseTrackingController::class, 'update'])->name('expense.update');
+Route::get('/expense/edit/{id}', [ExpenseTrackingController::class, 'edit'])->name('expense.edit');
+Route::post('/expense/update/{id}', [ExpenseTrackingController::class, 'update'])->name('expense.update');
